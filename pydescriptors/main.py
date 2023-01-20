@@ -1,6 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Generic, Optional, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Protocol, TypeAlias, TypeVar
 
+
+if TYPE_CHECKING:
+    ClassMethodType: TypeAlias = classmethod[Any]
+else:
+    ClassMethodType: TypeAlias = classmethod
 
 T = TypeVar("T")
 
@@ -133,15 +138,11 @@ class Property(Generic[T], Descriptor[T]):
     __deleter: Optional[Callable[[Any], None]]
     __class_getter: Optional[Callable[[Any], T]]
 
-    def __init__(self, getter: Optional[Callable[[Any], T]] = None, setter: Optional[Callable[[Any, T], None]] = None, deleter: Optional[Callable[[Any], None]] = None, class_getter: Optional[Callable[[Any], T] | classmethod[T]] = None):
-        self.__getter = getter
-        self.__setter = setter
-        self.__deleter = deleter
-
-        if isinstance(class_getter, classmethod):
-            self.__class_getter = class_getter.__func__
-        else:
-            self.__class_getter = class_getter
+    def __init__(self, getter: Optional[Callable[[Any], T]] = None, setter: Optional[Callable[[Any, T], None]] = None, deleter: Optional[Callable[[Any], None]] = None, class_getter: Optional[Callable[[Any], T] | ClassMethodType] = None):
+        self.getter(getter)
+        self.setter(setter)
+        self.deleter(deleter)
+        self.class_getter(class_getter)
 
     @property
     def __isabstractmethod__(self) -> bool:
@@ -180,7 +181,7 @@ class Property(Generic[T], Descriptor[T]):
     def deleter(self, f: Optional[Callable[[Any], None]]):
         self.__deleter = f
 
-    def class_getter(self, f: Optional[Callable[[Any], T] | classmethod[T]]):
+    def class_getter(self, f: Optional[Callable[[Any], T] | ClassMethodType]):
         if isinstance(f, classmethod):
             self.__class_getter = f.__func__
         else:
