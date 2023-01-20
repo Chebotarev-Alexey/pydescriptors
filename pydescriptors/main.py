@@ -173,12 +173,16 @@ class Property(Generic[T], Descriptor[T]):
 
     def getter(self, f: Optional[Callable[[Any], T]]):
         self.__getter = f
+        return self
 
     def setter(self, f: Optional[Callable[[Any, T], None]]):
         self.__setter = f
+        return self
 
     def deleter(self, f: Optional[Callable[[Any], None]]):
         self.__deleter = f
+        return self
 
     def class_getter(self, f: Optional[Callable[[Type[Any]], T]]):
         self.__class_getter = f
+        return self
