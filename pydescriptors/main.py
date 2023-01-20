@@ -133,15 +133,15 @@ class Property(Generic[T], Descriptor[T]):
     __deleter: Optional[Callable[[Any], None]]
     __class_getter: Optional[Callable[[Any], T]]
 
-    def __init__(self, getter: Optional[Callable[[Any], T]] = None, setter: Optional[Callable[[Any, T], None]] = None, deleter: Optional[Callable[[Any], None]] = None, class_getter: Optional[classmethod[T]] = None):
+    def __init__(self, getter: Optional[Callable[[Any], T]] = None, setter: Optional[Callable[[Any, T], None]] = None, deleter: Optional[Callable[[Any], None]] = None, class_getter: Optional[Callable[[Any], T]] = None):
         self.__getter = getter
         self.__setter = setter
         self.__deleter = deleter
 
-        if class_getter is not None:
+        if isinstance(class_getter, classmethod):
             self.__class_getter = class_getter.__func__
         else:
-            self.__class_getter = None
+            self.__class_getter = class_getter
 
     @property
     def __isabstractmethod__(self) -> bool:
@@ -173,16 +173,15 @@ class Property(Generic[T], Descriptor[T]):
 
     def getter(self, f: Optional[Callable[[Any], T]]):
         self.__getter = f
-        return self
 
     def setter(self, f: Optional[Callable[[Any, T], None]]):
         self.__setter = f
-        return self
 
     def deleter(self, f: Optional[Callable[[Any], None]]):
         self.__deleter = f
-        return self
 
-    def class_getter(self, f: Optional[Callable[[Type[Any]], T]]):
-        self.__class_getter = f
-        return self
+    def class_getter(self, f: Optional[Callable[[Any], T] | classmethod]):
+        if isinstance(f, classmethod):
+            self.__class_getter = f.__func__
+        else:
+            self.__class_getter = f
