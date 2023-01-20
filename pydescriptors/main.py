@@ -87,8 +87,8 @@ class Value(Generic[T], Descriptor[T]):
         delattr(obj, self._value_attribute_name)
 
 class Restrict(Generic[T], Descriptor[T]):
-    def __init__(self, property: DescriptorProtocol[T], get: bool = True, set: bool = False, delete: bool = False, class_get: bool = False):
-        self._property = property
+    def __init__(self, descriptor: DescriptorProtocol[T], get: bool = True, set: bool = False, delete: bool = False, class_get: bool = False):
+        self._descriptor = descriptor
         self._get_allowed = get
         self._set_allowed = set
         self._delete_allowed = delete
@@ -96,20 +96,20 @@ class Restrict(Generic[T], Descriptor[T]):
 
     def _object_get(self, obj: object) -> T:
         if not self._get_allowed:
-            raise AttributeError(f"unreadable attribute '{self._property.name}'")
-        return self._property.__get__(obj, type(obj))
+            raise AttributeError(f"unreadable attribute '{self._descriptor.name}'")
+        return self._descriptor.__get__(obj, type(obj))
 
     def _set(self, obj: Optional[object], value: T) -> None:
         if not self._set_allowed:
-            raise AttributeError(f"can't set attribute '{self._property.name}'")
-        self._property.__set__(obj, value)
+            raise AttributeError(f"can't set attribute '{self._descriptor.name}'")
+        self._descriptor.__set__(obj, value)
 
     def _delete(self, obj: Optional[object]) -> None:
         if not self._delete_allowed:
-            raise AttributeError(f"can't delete attribute '{self._property.name}'")
-        self._property.__delete__(obj)
+            raise AttributeError(f"can't delete attribute '{self._descriptor.name}'")
+        self._descriptor.__delete__(obj)
 
     def _class_get(self, cls: type[object]) -> T:
         if not self._class_get_allowed:
-            raise AttributeError(f"unreadable attribute '{self._property.name}'")
-        return self._property.__get__(None, cls)
+            raise AttributeError(f"unreadable attribute '{self._descriptor.name}'")
+        return self._descriptor.__get__(None, cls)
