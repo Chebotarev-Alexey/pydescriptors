@@ -8,7 +8,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
 	name="pydescriptors",
-	version="1.0",
+	version="1.1",
 	author="Alexey-Chebotarev",
 	description="A package with several simple descriptors",
 	long_description=long_description,
